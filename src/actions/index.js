@@ -13,6 +13,8 @@ const { v1 } = require('@google-cloud/vision')
 const { getContentType } = require("@whiskeysockets/baileys")
 const { TextToSpeechClient } = require('@google-cloud/text-to-speech')
 const { v4: uuidv4 } = require('uuid');
+const { collection, query, where, getDocs } = require("firebase/firestore");
+const { Database } = require('../firebase');
 
 class Action {
 
@@ -1339,6 +1341,22 @@ Salmo 119:1-20
     }
     
     //PARTE HINO -------------------------------------
+    async hino() {
+      const db = Database;
+      try {
+        const q = query(collection(db, 'musicas'), where('titulo', '==', this.args));
+        const querySnapshot = await getDocs(q);
+        querySnapshot.forEach((doc) => {
+          this.bot.sendMessage(this.remoteJid, {
+            text: doc.data().letra,
+          }, {
+            quoted: this.baileysMessage,
+          });
+        });
+      } catch (error) {
+        console.error('Erro ao ler o arquivo:', error);
+      }
+    }
     async hino1() {
       try {
         const filePath = '/home/luizpro/project/bot-whatsapp/src/hinos/hino1.txt';
